@@ -138,7 +138,8 @@ const UserProfileCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   listContainer: {
-    padding: 10,
+    padding: 16,
+    marginTop:25
   },
   card: {
     backgroundColor: "#fff",

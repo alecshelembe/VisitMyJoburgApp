@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { WebView } from "react-native-webview";
-import { View, Text, Image, StyleSheet, FlatList, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  SafeAreaView,
+  ActivityIndicator,
+} from "react-native";
+
+// Packages to install:
+// npm install react-native-webview
 
 interface SocialPost {
   id: number;
@@ -9,10 +21,11 @@ interface SocialPost {
   images: string[];
   email: string;
   status: string;
-  comments: { id: number; author: string; content: string; created_at: string; }[] | null;
+  comments: { id: number; author: string; content: string; created_at: string }[] | null;
   place_name: string;
   created_at: string;
   video_link: string | null;
+  amenities: string | null; // Added amenities property
 }
 
 const SocialPostCard: React.FC = () => {
@@ -32,9 +45,10 @@ const SocialPostCard: React.FC = () => {
         }
         const data = await response.json();
         if (data && data.data && Array.isArray(data.data)) {
-          const parsedData = data.data.map(post => ({
+          const parsedData = data.data.map((post) => ({
             ...post,
             images: JSON.parse(post.images),
+            amenities: post.amenities ? JSON.parse(post.amenities).join(', ') : null, // Parse and join amenities
           }));
           setPosts(parsedData);
         } else {
@@ -53,27 +67,29 @@ const SocialPostCard: React.FC = () => {
     if (!url) return null;
     const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return match && match[2].length === 11 ? match[2] : null;
   };
 
   const renderPostCard = ({ item }: { item: SocialPost }) => {
     const videoId = getYouTubeVideoId(item.video_link);
     return (
       <View style={styles.card}>
-        <Text style={styles.title}>{item.place_name}</Text>
-        <Text style={styles.date}>
-        {new Date(item.created_at).toLocaleDateString(undefined, {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        })}
-        </Text>
-        <Text style={styles.fee}>Fee: R {item.fee}</Text>
-        <Text style={styles.description}>{item.description}</Text>
+        <View style={styles.detailsCard}>
+          <Text style={styles.title}>{item.place_name}</Text>
+          <Text style={styles.date}>
+            {new Date(item.created_at).toLocaleDateString(undefined, {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </Text>
+          <Text style={styles.fee}>R {item.fee}</Text>
+          <Text style={styles.description}>{item.description}</Text>
+        </View>
 
         {item.images && item.images.length > 0 ? (
-          <ScrollView horizontal style={styles.imageContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageContainer}>
             {item.images.map((img, index) => (
               <Image key={index} source={{ uri: `https://visitmyjoburg.co.za/${img}` }} style={styles.image} />
             ))}
@@ -92,12 +108,20 @@ const SocialPostCard: React.FC = () => {
           </View>
         )}
 
+        {item.amenities && (
+          <View style={styles.amenitiesContainer}>
+            <Text style={styles.amenitiesTitle}>Amenities:</Text>
+            <Text style={styles.amenitiesText}>{item.amenities}</Text>
+          </View>
+        )}
+
         {item.comments && item.comments.length > 0 && (
           <View style={styles.commentsContainer}>
             <Text style={styles.commentsTitle}>Comments:</Text>
             {item.comments.map((comment, index) => (
               <Text key={index} style={styles.commentText}>
-                {comment.author}: {comment.content}
+                <Text style={styles.commentAuthor}>{comment.author}: </Text>
+                {comment.content}
               </Text>
             ))}
           </View>
@@ -109,7 +133,7 @@ const SocialPostCard: React.FC = () => {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#007bff" />
       </View>
     );
   }
@@ -123,48 +147,71 @@ const SocialPostCard: React.FC = () => {
   }
 
   return (
-    <FlatList
-      data={posts}
-      renderItem={renderPostCard}
-      keyExtractor={(item) => item.id.toString()}
-      contentContainerStyle={styles.listContainer}
-    />
+    <SafeAreaView style={{ flex: 1 }}>
+      <FlatList
+        data={posts}
+        renderItem={renderPostCard}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  listContainer: { padding: 10 },
+  listContainer: { padding: 16, marginTop: 25 },
   card: {
     backgroundColor: "#fff",
     padding: 20,
-    marginBottom: 20,
-    borderRadius: 15,
+    marginBottom: 16,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 5 },
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 5,
+    elevation: 3,
   },
-  title: { fontSize: 20, fontWeight: "bold", marginBottom: 12 },
-  date: { fontSize: 13, color: "#888", marginBottom: 12 },
-  fee: { fontSize: 15, marginBottom: 12 },
-  description: { fontSize: 16, color: "#444", marginBottom: 15 },
-  imageContainer: { marginBottom: 15, flexDirection: 'row' },
-  image: { width: 150, height: 150, borderRadius: 12, marginRight: 15 },
-  commentsContainer: { marginTop: 15 },
-  commentsTitle: { fontWeight: "bold", marginBottom: 8 },
-  commentText: { fontSize: 15, color: "#444" },
-  centered: { flex: 1, justifyContent: "center", alignItems: "center", height: "100%" },
+  detailsCard: {
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  title: { fontSize: 20, fontWeight: "600", marginBottom: 8, color: "#333" },
+  date: { fontSize: 14, color: "#777", marginBottom: 8 },
+  fee: { fontSize: 16, marginBottom: 8, color: "#444" },
+  description: { fontSize: 15, color: "#555", marginBottom: 16, lineHeight: 22 },
+  imageContainer: { marginBottom: 16, flexDirection: "row" },
+  image: { width: 200, height: 200, borderRadius: 8, marginRight: 12 },
+  commentsContainer: { marginTop: 16 },
+  commentsTitle: { fontWeight: "600", marginBottom: 8, color: "#333" },
+  commentText: { fontSize: 14, color: "#666", marginBottom: 4 },
+  commentAuthor: { fontWeight: 'bold' },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   errorText: { color: "red", fontSize: 18, textAlign: "center" },
   noImagesText: { fontStyle: "italic", color: "#aaa", marginTop: 12 },
   videoContainer: {
-    width: '100%',
+    width: "100%",
     height: 250,
-    marginTop: 15,
+    marginTop: 16,
+    borderRadius: 8,
+    overflow: "hidden",
   },
   webView: {
     flex: 1,
   },
+  amenitiesContainer: {
+    marginTop: 16,
+  },
+  amenitiesTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  amenitiesText: {
+    fontSize: 14,
+    color: '#666',
+  }
 });
 
 export default SocialPostCard;
