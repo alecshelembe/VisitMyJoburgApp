@@ -70,38 +70,41 @@ const UserProfileCard: React.FC = () => {
 
   const renderUserCard = ({ item }: { item: User }) => (
     <View style={styles.card}>
-      <Image source={{ uri: 'https://visitmyjoburg.co.za/storage/' + item.profile_image_url }} style={styles.profileImage} />
-      <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
-      <Text style={styles.email}>{item.email}</Text>
-      <Text style={styles.phone}>{item.phone}</Text>
-      <Text style={styles.location}>{item.google_location}, {item.google_city}</Text>
-
-      <View style={styles.socialLinks}>
-        {item.instagram_handle && (
-          <TouchableOpacity onPress={() => handleLinkPress(`https://www.instagram.com/${item.instagram_handle}`)}>
-            <FontAwesome name="instagram" size={20} color="black" style={styles.socialIcon}/>
-          </TouchableOpacity>
-        )}
-        {item.tiktok_handle && (
-          <TouchableOpacity onPress={() => handleLinkPress(`https://www.tiktok.com/@${item.tiktok_handle}`)}>
-            <MaterialCommunityIcons name="tiktok" size={20} color="black" style={styles.socialIcon}/>
-          </TouchableOpacity>
-        )}
-        {item.linkedin_handle && (
-          <TouchableOpacity onPress={() => handleLinkPress(`https://www.linkedin.com/in/${item.linkedin_handle}`)}>
-            <AntDesign name="linkedin-square" size={20} color="black" style={styles.socialIcon}/>
-          </TouchableOpacity>
-        )}
-        {item.youtube_handle && (
-          <TouchableOpacity onPress={() => handleLinkPress(`https://www.youtube.com/user/${item.youtube_handle}`)}>
-            <AntDesign name="youtube" size={20} color="black" style={styles.socialIcon}/>
-          </TouchableOpacity>
-        )}
+      <View style={styles.profileImageContainer}>
+        <Image source={{ uri: 'https://visitmyjoburg.co.za/storage/' + item.profile_image_url }} style={styles.profileImage} />
       </View>
+      <View style={styles.profileInfo}>
+        <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
+        <Text style={styles.email}>{item.email}</Text>
+        <Text style={styles.phone}>{item.phone}</Text>
+        <Text style={styles.location}>{item.google_location}, {item.google_city}</Text>
 
-      <TouchableOpacity style={styles.viewProfileButton}>
-        <Text style={styles.viewProfileButtonText}>View Profile</Text>
-      </TouchableOpacity>
+        <View style={styles.socialLinks}>
+          {item.instagram_handle && (
+            <TouchableOpacity onPress={() => handleLinkPress(`https://www.instagram.com/${item.instagram_handle}`)}>
+              <FontAwesome name="instagram" size={20} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+          )}
+          {item.tiktok_handle && (
+            <TouchableOpacity onPress={() => handleLinkPress(`https://www.tiktok.com/@${item.tiktok_handle}`)}>
+              <MaterialCommunityIcons name="tiktok" size={20} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+          )}
+          {item.linkedin_handle && (
+            <TouchableOpacity onPress={() => handleLinkPress(`https://www.linkedin.com/in/${item.linkedin_handle}`)}>
+              <AntDesign name="linkedin-square" size={20} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+          )}
+          {item.youtube_handle && (
+            <TouchableOpacity onPress={() => handleLinkPress(`https://www.youtube.com/user/$${item.youtube_handle}`)}>
+              <AntDesign name="youtube" size={20} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+          )}
+        </View>
+        <TouchableOpacity style={styles.viewProfileButton}>
+          <Text style={styles.viewProfileButtonText}>View Profile</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -127,6 +130,7 @@ const UserProfileCard: React.FC = () => {
       data={users}
       renderItem={renderUserCard}
       keyExtractor={(item) => item.id.toString()}
+      numColumns={2}
       contentContainerStyle={styles.listContainer}
     />
   );
@@ -139,61 +143,74 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 10,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
     elevation: 5,
+    flexDirection: 'column', // Changed to column for image first
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  profileImageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10, // Add space between image and info
   },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    alignSelf: "center",
-    marginBottom: 15,
+  },
+  profileInfo: {
+    width: '100%', // Full width for info
   },
   name: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 2,
+    textAlign: 'center', // Center text
   },
   email: {
-    textAlign: "center",
+    fontSize: 12,
     color: "#777",
-    marginBottom: 5,
+    marginBottom: 2,
+    textAlign: 'center', // Center text
   },
   phone: {
-    textAlign: "center",
+    fontSize: 12,
     color: "#777",
-    marginBottom: 5,
+    marginBottom: 2,
+    textAlign: 'center', // Center text
   },
   location: {
-    textAlign: "center",
-    marginBottom: 10,
+    fontSize: 12,
+    marginBottom: 5,
     color: "#555",
+    textAlign: 'center', // Center text
   },
   socialLinks: {
-    marginBottom: 15,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
     alignItems: 'center',
+    justifyContent: 'center', // Center social icons
+    marginTop: 5,
   },
   socialIcon: {
-    marginRight: 10,
+    marginHorizontal: 3,
   },
   viewProfileButton: {
     backgroundColor: "#007BFF",
-    padding: 10,
+    padding: 8,
     borderRadius: 5,
     alignItems: "center",
+    marginTop: 5,
   },
   viewProfileButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 12,
   },
   centered: {
     flex: 1,
