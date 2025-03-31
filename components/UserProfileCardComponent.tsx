@@ -77,7 +77,7 @@ const UserProfileCard: React.FC = () => {
         <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
         <Text style={styles.email}>{item.email}</Text>
         <Text style={styles.phone}>{item.phone}</Text>
-        <Text style={styles.location}>{item.google_location}, {item.google_city}</Text>
+        <Text style={styles.location}>{item.google_location} {item.google_city}</Text>
 
         <View style={styles.socialLinks}>
           {item.instagram_handle && (
