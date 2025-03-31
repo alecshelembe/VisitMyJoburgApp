@@ -33,8 +33,8 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
       <ThemedView>
-        <FetchData />
-        <ImageGallery />
+        {/* <FetchData /> */}
+        {/* <ImageGallery /> */}
       </ThemedView>
       <Step title="Step 1: Try it">
         Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
