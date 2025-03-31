@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Linking, ScrollView } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { WebView } from "react-native-webview";
+import { View, Text, Image, StyleSheet, FlatList, ScrollView } from "react-native";
 
 interface SocialPost {
   id: number;
   fee: string;
   description: string;
-  images: string[]; // This will be strings, but we'll parse them
+  images: string[];
   email: string;
   status: string;
-  comments: { id: number; author: string; content: string; created_at: string; }[] | null; // Correct type
+  comments: { id: number; author: string; content: string; created_at: string; }[] | null;
   place_name: string;
   created_at: string;
-  video_link: string | null; // Can be null
+  video_link: string | null;
 }
 
 const SocialPostCard: React.FC = () => {
@@ -32,7 +32,6 @@ const SocialPostCard: React.FC = () => {
         }
         const data = await response.json();
         if (data && data.data && Array.isArray(data.data)) {
-          // Parse images string into array
           const parsedData = data.data.map(post => ({
             ...post,
             images: JSON.parse(post.images),
@@ -50,30 +49,48 @@ const SocialPostCard: React.FC = () => {
     fetchPosts();
   }, []);
 
+  const getYouTubeVideoId = (url: string | null): string | null => {
+    if (!url) return null;
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   const renderPostCard = ({ item }: { item: SocialPost }) => {
+    const videoId = getYouTubeVideoId(item.video_link);
     return (
       <View style={styles.card}>
         <Text style={styles.title}>{item.place_name}</Text>
-        <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
-        <Text style={styles.fee}>Fee: ${item.fee}</Text>
+        <Text style={styles.date}>
+        {new Date(item.created_at).toLocaleDateString(undefined, {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        })}
+        </Text>
+        <Text style={styles.fee}>Fee: R {item.fee}</Text>
         <Text style={styles.description}>{item.description}</Text>
 
         {item.images && item.images.length > 0 ? (
           <ScrollView horizontal style={styles.imageContainer}>
             {item.images.map((img, index) => (
-            <Image key={index} source={{ uri: `https://visitmyjoburg.co.za/${img}` }} style={styles.image} />
-        ))}
+              <Image key={index} source={{ uri: `https://visitmyjoburg.co.za/${img}` }} style={styles.image} />
+            ))}
           </ScrollView>
         ) : (
           <Text style={styles.noImagesText}>No images available.</Text>
         )}
 
-        <TouchableOpacity onPress={() => Linking.openURL(`mailto:${item.email}`)} style={styles.actionButton}>
-          <FontAwesome name="envelope" size={20} color="white" />
-          <Text style={styles.actionButtonText}>Email</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.status}>Status: {item.status}</Text>
+        {videoId && (
+          <View style={styles.videoContainer}>
+            <WebView
+              style={styles.webView}
+              javaScriptEnabled={true}
+              source={{ uri: `https://www.youtube.com/embed/${videoId}` }}
+            />
+          </View>
+        )}
 
         {item.comments && item.comments.length > 0 && (
           <View style={styles.commentsContainer}>
@@ -84,13 +101,6 @@ const SocialPostCard: React.FC = () => {
               </Text>
             ))}
           </View>
-        )}
-
-        {item.video_link && (
-          <TouchableOpacity onPress={() => Linking.openURL(item.video_link)} style={styles.videoButton}>
-            <FontAwesome name="youtube" size={20} color="red" />
-            <Text style={styles.videoButtonText}>Watch Video</Text>
-          </TouchableOpacity>
         )}
       </View>
     );
@@ -124,37 +134,36 @@ const SocialPostCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   listContainer: { padding: 10 },
-  card: { backgroundColor: "#fff", padding: 15, marginBottom: 20, borderRadius: 10, shadowColor: "#000", shadowOpacity: 0.1, shadowOffset: { width: 0, height: 3 }, shadowRadius: 6, elevation: 5 },
-  title: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  date: { fontSize: 12, color: "#888", marginBottom: 10 },
-  fee: { fontSize: 14, marginBottom: 10 },
-  description: { fontSize: 16, color: "#444", marginBottom: 10 },
-  imageContainer: { marginBottom: 10, flexDirection: 'row' },
-  image: { width: 100, height: 100, borderRadius: 10, marginRight: 10 },
-  actionButton: { backgroundColor: "#007BFF", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 5, flexDirection: "row", alignItems: "center", alignSelf: 'flex-start', marginTop: 10 },
-  actionButtonText: { color: "white", marginLeft: 5 },
-  status: { fontSize: 14, color: "#888", marginBottom: 10 },
-  commentsContainer: { marginTop: 10 },
-  commentsTitle: { fontWeight: "bold", marginBottom: 5 },
-  commentText: { fontSize: 14, color: "#444" },
+  card: {
+    backgroundColor: "#fff",
+    padding: 20,
+    marginBottom: 20,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  title: { fontSize: 20, fontWeight: "bold", marginBottom: 12 },
+  date: { fontSize: 13, color: "#888", marginBottom: 12 },
+  fee: { fontSize: 15, marginBottom: 12 },
+  description: { fontSize: 16, color: "#444", marginBottom: 15 },
+  imageContainer: { marginBottom: 15, flexDirection: 'row' },
+  image: { width: 150, height: 150, borderRadius: 12, marginRight: 15 },
+  commentsContainer: { marginTop: 15 },
+  commentsTitle: { fontWeight: "bold", marginBottom: 8 },
+  commentText: { fontSize: 15, color: "#444" },
   centered: { flex: 1, justifyContent: "center", alignItems: "center", height: "100%" },
   errorText: { color: "red", fontSize: 18, textAlign: "center" },
-  noImagesText: { fontStyle: "italic", color: "#aaa", marginTop: 10 },
-  videoButton: {
-    backgroundColor: "#fff",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: 'flex-start',
-    marginTop: 10,
-    borderColor: '#ddd',
-    borderWidth: 1,
+  noImagesText: { fontStyle: "italic", color: "#aaa", marginTop: 12 },
+  videoContainer: {
+    width: '100%',
+    height: 250,
+    marginTop: 15,
   },
-  videoButtonText: {
-    color: "red",
-    marginLeft: 5,
+  webView: {
+    flex: 1,
   },
 });
 
