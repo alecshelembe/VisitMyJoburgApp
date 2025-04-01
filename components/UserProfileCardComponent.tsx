@@ -78,22 +78,22 @@ const UserProfileCard: React.FC = () => {
 
         <View style={styles.socialLinks}>
           {item.instagram_handle && (
-            <TouchableOpacity onPress={() => handleLinkPress(`https://www.instagram.com/${item.instagram_handle}`)}>
+            <TouchableOpacity onPress={() => handleLinkPress(`${item.instagram_handle}`)}>
               <FontAwesome name="instagram" size={20} color="black" style={styles.socialIcon} />
             </TouchableOpacity>
           )}
           {item.tiktok_handle && (
-            <TouchableOpacity onPress={() => handleLinkPress(`https://www.tiktok.com/@${item.tiktok_handle}`)}>
+            <TouchableOpacity onPress={() => handleLinkPress(`${item.tiktok_handle}`)}>
               <MaterialCommunityIcons name="tiktok" size={20} color="black" style={styles.socialIcon} />
             </TouchableOpacity>
           )}
           {item.linkedin_handle && (
-            <TouchableOpacity onPress={() => handleLinkPress(`https://www.linkedin.com/in/${item.linkedin_handle}`)}>
+            <TouchableOpacity onPress={() => handleLinkPress(`${item.linkedin_handle}`)}>
               <AntDesign name="linkedin-square" size={20} color="black" style={styles.socialIcon} />
             </TouchableOpacity>
           )}
           {item.youtube_handle && (
-            <TouchableOpacity onPress={() => handleLinkPress(`https://www.youtube.com/user/$${item.youtube_handle}`)}>
+            <TouchableOpacity onPress={() => handleLinkPress(`${item.youtube_handle}`)}>
               <AntDesign name="youtube" size={20} color="black" style={styles.socialIcon} />
             </TouchableOpacity>
           )}

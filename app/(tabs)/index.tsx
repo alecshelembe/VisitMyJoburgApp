@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
+
 // Packages to install:
 // npm install react-native-webview
 
