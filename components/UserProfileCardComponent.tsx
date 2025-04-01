@@ -74,8 +74,7 @@ const UserProfileCard: React.FC = () => {
         <Image source={{ uri: 'https://visitmyjoburg.co.za/storage/' + item.profile_image_url }} style={styles.profileImage} />
       </View>
       <View style={styles.profileInfo}>
-        <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
-        <Text style={styles.email}>{item.email}</Text>
+        <Text style={styles.name}>{item.first_name}</Text>
 
         <View style={styles.socialLinks}>
           {item.instagram_handle && (
@@ -99,9 +98,7 @@ const UserProfileCard: React.FC = () => {
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity style={styles.viewProfileButton}>
-          <Text style={styles.viewProfileButtonText}>View Profile</Text>
-        </TouchableOpacity>
+        
       </View>
     </View>
   );
