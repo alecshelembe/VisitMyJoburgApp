@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-
 // Packages to install:
 // npm install react-native-webview
 
@@ -26,7 +25,8 @@ interface SocialPost {
   place_name: string;
   created_at: string;
   video_link: string | null;
-  amenities: string | null; // Added amenities property
+  extras: string[] | null; // Renamed amenities to extras to match API
+  profile_image_url: string | null; // Added profile_image_url
 }
 
 const SocialPostCard: React.FC = () => {
@@ -49,7 +49,7 @@ const SocialPostCard: React.FC = () => {
           const parsedData = data.data.map((post) => ({
             ...post,
             images: JSON.parse(post.images),
-            amenities: post.amenities ? JSON.parse(post.amenities).join(', ') : null, // Parse and join amenities
+            extras: post.extras || null, // Keep extras as is
           }));
           setPosts(parsedData);
         } else {
@@ -75,16 +75,28 @@ const SocialPostCard: React.FC = () => {
     const videoId = getYouTubeVideoId(item.video_link);
     return (
       <View style={styles.card}>
+        <View style={styles.header}>
+          {item.profile_image_url ? (
+            <Image
+              source={{ uri: `https://visitmyjoburg.co.za/storage/${item.profile_image_url}` }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <View style={styles.placeholderImage} />
+          )}
+          <View style={styles.headerText}>
+            <Text style={styles.title}>{item.place_name}</Text>
+            <Text style={styles.date}>
+              {new Date(item.created_at).toLocaleDateString(undefined, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
+          </View>
+        </View>
         <View style={styles.detailsCard}>
-          <Text style={styles.title}>{item.place_name}</Text>
-          <Text style={styles.date}>
-            {new Date(item.created_at).toLocaleDateString(undefined, {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </Text>
           <Text style={styles.fee}>R {item.fee}</Text>
           <Text style={styles.description}>{item.description}</Text>
         </View>
@@ -109,10 +121,10 @@ const SocialPostCard: React.FC = () => {
           </View>
         )}
 
-        {item.amenities && (
+        {item.extras && item.extras.length > 0 && (
           <View style={styles.amenitiesContainer}>
             <Text style={styles.amenitiesTitle}>Amenities:</Text>
-            <Text style={styles.amenitiesText}>{item.amenities}</Text>
+            <Text style={styles.amenitiesText}>{item.extras.join(', ')}</Text>
           </View>
         )}
 
@@ -173,14 +185,35 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  placeholderImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#ddd',
+    marginRight: 12,
+  },
+  headerText: {
+    flex: 1,
+  },
   detailsCard: {
     marginBottom: 16,
     padding: 16,
     backgroundColor: '#f5f5f5',
     borderRadius: 8,
   },
-  title: { fontSize: 20, fontWeight: "600", marginBottom: 8, color: "#333" },
-  date: { fontSize: 14, color: "#777", marginBottom: 8 },
+  title: { fontSize: 18, fontWeight: "600", marginBottom: 4, color: "#333" },
+  date: { fontSize: 12, color: "#777", marginBottom: 8 },
   fee: { fontSize: 16, marginBottom: 8, color: "#444" },
   description: { fontSize: 15, color: "#555", marginBottom: 16, lineHeight: 22 },
   imageContainer: { marginBottom: 16, flexDirection: "row" },
